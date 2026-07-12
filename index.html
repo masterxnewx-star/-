@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HM Admin Dashboard v2</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0a0a0f;
+            color: #fff;
+            min-height: 100vh;
+        }
+        .container { max-width: 950px; margin: 0 auto; padding: 20px; }
+        
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #1a0000, #0d0000);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            border: 1px solid #300;
+            text-align: center;
+        }
+        .header h1 { color: #ff3333; font-size: 28px; margin-bottom: 5px; }
+        .header p { color: #999; font-size: 14px; }
+        
+        /* Form */
+        .add-form {
+            background: #111118;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #222;
+        }
+        .form-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+        .add-form input, .add-form select {
+            background: #1a1a25;
+            border: 1px solid #333;
+            color: #fff;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 14px;
+            flex: 1;
+            min-width: 150px;
+        }
+        .add-form select { cursor: pointer; }
+        .add-form select option { background: #1a1a25; color: #fff; }
+        .add-form button {
+            background: #cc0000;
+            color: #fff;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: 0.3s;
+            width: 100%;
+        }
+        .add-form button:hover { background: #ff0000; }
+        
+        /* Stats */
+        .stats {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: #111118;
+            border: 1px solid #222;
+            border-radius: 10px;
+            padding: 20px;
+            flex: 1;
+            text-align: center;
+        }
+        .stat-card h3 { color: #ff3333; font-size: 24px; }
+        .stat-card p { color: #888; font-size: 12px; margin-top: 5px; }
+        
+        /* Users Table */
+        .users-table {
+            background: #111118;
+            border-radius: 12px;
+            border: 1px solid #222;
+            overflow: hidden;
+        }
+        .users-table table { width: 100%; border-collapse: collapse; }
+        .users-table th {
+            background: #1a0000;
+            padding: 12px 15px;
+            text-align: left;
+            font-size: 13px;
+            color: #ff6666;
+            border-bottom: 2px solid #300;
+        }
+        .users-table td {
+            padding: 12px 15px;
+            font-size: 13px;
+            border-bottom: 1px solid #1a1a25;
+        }
+        .users-table tr:hover { background: #1a1a28; }
+        
+        .status-active { color: #00ff66; font-weight: bold; }
+        .status-expired { color: #ff3333; font-weight: bold; }
+        .status-permanent { color: #ffaa00; font-weight: bold; }
+        
+        .btn-delete {
+            background: #ff3333;
+            color: #fff;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .btn-delete:hover { background: #ff0000; }
+        
+        /* Search */
+        .search-bar {
+            background: #111118;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #222;
+        }
+        .search-bar input {
+            background: #1a1a25;
+            border: 1px solid #333;
+            color: #fff;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 14px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🔐 HM ADMIN DASHBOARD v2</h1>
+            <p>Manage script access & users | Auto-Save Enabled</p>
+        </div>
+        
+        <!-- Stats -->
+        <div class="stats">
+            <div class="stat-card">
+                <h3 id="totalUsers">0</h3>
+                <p>Total Users</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="activeUsers">0</h3>
+                <p>Active</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="expiredUsers">0</h3>
+                <p>Expired</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="permanentUsers">0</h3>
+                <p>Permanent</p>
+            </div>
+        </div>
+        
+        <!-- Add User Form -->
+        <div class="add-form">
+            <div class="form-row">
+                <input type="text" id="username" placeholder="👤 Roblox Username (Required)...">
+                <input type="text" id="scriptName" placeholder="📜 Script Name (e.g. HM_HUB_V1)">
+            </div>
+            <div class="form-row">
+                <select id="timeUnit">
+                    <option value="minutes">🕐 Minutes</option>
+                    <option value="hours">🕐 Hours</option>
+                    <option value="days">📅 Days</option>
+                    <option value="weeks">📅 Weeks</option>
+                    <option value="months">📅 Months</option>
+                    <option value="years">📅 Years</option>
+                    <option value="permanent">♾️ Permanent (No Expiry)</option>
+                </select>
+                <input type="number" id="timeValue" placeholder="🔢 Amount (e.g. 30)" value="30" min="1">
+            </div>
+            <button onclick="addUser()">➕ Add User</button>
+        </div>
+        
+        <!-- Search -->
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="🔍 Search by username or script..." oninput="renderTable()">
+        </div>
+        
+        <!-- Users Table -->
+        <div class="users-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Script</th>
+                        <th>Duration</th>
+                        <th>Expires</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="usersTableBody">
+                    <tr>
+                        <td colspan="6" style="text-align:center;color:#666;">No users added yet</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // ==================== DATA ====================
+        let users = JSON.parse(localStorage.getItem("hm_users_v2")) || [];
+        
+        // ==================== FUNCTIONS ====================
+        function saveUsers() {
+            localStorage.setItem("hm_users_v2", JSON.stringify(users));
+            renderTable();
+        }
+        
+        function calculateExpiry(unit, amount) {
+            const now = new Date();
+            switch(unit) {
+                case "minutes": return new Date(now.getTime() + amount * 60000);
+                case "hours": return new Date(now.getTime() + amount * 3600000);
+                case "days": return new Date(now.getTime() + amount * 86400000);
+                case "weeks": return new Date(now.getTime() + amount * 604800000);
+                case "months": return new Date(now.setMonth(now.getMonth() + amount));
+                case "years": return new Date(now.setFullYear(now.getFullYear() + amount));
+                case "permanent": return "Permanent";
+                default: return new Date(now.getTime() + 86400000);
+            }
+        }
+        
+        function formatDate(date) {
+            if (date == "Permanent") return "♾️ Permanent";
+            const d = new Date(date);
+            return d.toLocaleDateString("en-US", { year: 'numeric', month: 'short', day: 'numeric' }) + 
+                   " " + d.toLocaleTimeString("en-US", { hour: '2-digit', minute: '2-digit' });
+        }
+        
+        function addUser() {
+            const username = document.getElementById("username").value.trim();
+            const scriptName = document.getElementById("scriptName").value.trim();
+            const timeUnit = document.getElementById("timeUnit").value;
+            const timeValue = parseInt(document.getElementById("timeValue").value);
+            
+            if (!username) {
+                alert("❌ Please enter a username!");
+                return;
+            }
+            if (!scriptName) {
+                alert("❌ Please enter a script name!");
+                return;
+            }
+            
+            const expireDate = calculateExpiry(timeUnit, timeValue);
+            
+            users.push({
+                id: Date.now(),
+                username: username,
+                script: scriptName,
+                duration: (timeUnit == "permanent") ? "Permanent" : timeValue + " " + timeUnit,
+                expireDate: expireDate,
+                addedDate: new Date().toISOString()
+            });
+            
+            // Clear inputs
+            document.getElementById("username").value = "";
+            document.getElementById("scriptName").value = "";
+            document.getElementById("timeValue").value = "30";
+            document.getElementById("timeUnit").value = "minutes";
+            
+            saveUsers();
+        }
+        
+        function deleteUser(id) {
+            if (confirm("⚠️ Are you sure you want to DELETE this user?")) {
+                users = users.filter(u => u.id != id);
+                saveUsers();
+            }
+        }
+        
+        function getStatus(expireDate) {
+            if (expireDate == "Permanent") return { text: "Permanent", class: "status-permanent" };
+            
+            const now = new Date();
+            const expire = new Date(expireDate);
+            
+            if (expire > now) {
+                // Calculate remaining time
+                const diff = expire - now;
+                const days = Math.floor(diff / 86400000);
+                const hours = Math.floor((diff % 86400000) / 3600000);
+                
+                if (days > 0) return { text: `Active (${days}d left)`, class: "status-active" };
+                else if (hours > 0) return { text: `Active (${hours}h left)`, class: "status-active" };
+                else return { text: "Active (<1h)", class: "status-active" };
+            } else {
+                return { text: "Expired", class: "status-expired" };
+            }
+        }
+        
+        function renderTable() {
+            const tbody = document.getElementById("usersTableBody");
+            const searchQuery = document.getElementById("searchInput").value.toLowerCase();
+            
+            let filteredUsers = users;
+            if (searchQuery) {
+                filteredUsers = users.filter(u => 
+                    u.username.toLowerCase().includes(searchQuery) || 
+                    u.script.toLowerCase().includes(searchQuery)
+                );
+            }
+            
+            if (filteredUsers.length == 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#666;">No users found</td></tr>';
+            } else {
+                tbody.innerHTML = filteredUsers.map(u => {
+                    const status = getStatus(u.expireDate);
+                    return `
+                        <tr>
+                            <td>👤 ${u.username}</td>
+                            <td>📜 ${u.script}</td>
+                            <td>⏱️ ${u.duration}</td>
+                            <td>📅 ${formatDate(u.expireDate)}</td>
+                            <td><span class="${status.class}">${status.text}</span></td>
+                            <td><button class="btn-delete" onclick="deleteUser(${u.id})">🗑️ Delete</button></td>
+                        </tr>
+                    `;
+                }).join("");
+            }
+            
+            // Update stats
+            const now = new Date();
+            document.getElementById("totalUsers").textContent = users.length;
+            document.getElementById("activeUsers").textContent = users.filter(u => u.expireDate == "Permanent" || new Date(u.expireDate) > now).length;
+            document.getElementById("expiredUsers").textContent = users.filter(u => u.expireDate != "Permanent" && new Date(u.expireDate) <= now).length;
+            document.getElementById("permanentUsers").textContent = users.filter(u => u.expireDate == "Permanent").length;
+        }
+        
+        // ==================== INIT ====================
+        renderTable();
+        
+        // Auto-refresh every 30 seconds
+        setInterval(() => {
+            renderTable();
+        }, 30000);
+        
+        console.log("✅ HM Dashboard v2 Ready!");
+        console.log("📊 " + users.length + " users loaded");
+    </script>
+</body>
+  </html>
